@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Video Playlist with Responsive Iframe</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .iframe-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 30.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+        }
+
+        .iframe-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        #videoPlayer {
+            width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Responsive Iframe Container -->
+        <div class="iframe-container mb-5">
+            <!-- Replace 'your-iframe-source-link' with the link to the video or content you wish to embed -->
+            <iframe src="https://ssyoutube.com/en165IO/youtube-video-downloader" style="width: 700x; height: 300px;" frameborder="0" allowfullscreen></iframe>
+        </div>
+
+        <!-- Video Playlist -->
+        <input type="file" id="fileInput" multiple accept="video/*" class="form-control mb-3">
+        <button class="btn btn-primary mb-3" id="loadPlaylistBtn">Load Playlist</button>
+        <video id="videoPlayer" controls>
+            Your browser does not support the video tag.
+        </video>
+        <ul class="list-group" id="playlist"></ul>
+        <button class="btn btn-success mb-3" id="startPlaylistBtn">Start Playlist</button>
+        <button class="btn btn-danger mb-3" id="stopPlaylistBtn">Stop Playlist</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const loadPlaylistBtn = document.getElementById('loadPlaylistBtn');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const playlistElement = document.getElementById('playlist');
+        let playlist = [];
+        let currentVideoIndex = -1;
+
+        loadPlaylistBtn.addEventListener('click', function() {
+            playlist = Array.from(fileInput.files);
+            updatePlaylistDisplay();
+        });
+
+        videoPlayer.addEventListener('ended', function() {
+            currentVideoIndex++;
+            if (currentVideoIndex < playlist.length) {
+                playVideo(currentVideoIndex);
+            } else {
+                currentVideoIndex = -1;
+            }
+        });
+
+        document.getElementById('startPlaylistBtn').addEventListener('click', function() {
+            if (currentVideoIndex < 0 || currentVideoIndex >= playlist.length - 1) {
+                currentVideoIndex = 0;
+            } else {
+                currentVideoIndex++;
+            }
+            playVideo(currentVideoIndex);
+        });
+
+        document.getElementById('stopPlaylistBtn').addEventListener('click', function() {
+            videoPlayer.pause();
+        });
+
+        function updatePlaylistDisplay() {
+            playlistElement.innerHTML = '';
+            playlist.forEach((file, index) => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('list-group-item');
+                listItem.textContent = file.name;
+                listItem.addEventListener('click', function() {
+                    playVideo(index);
+                });
+                playlistElement.appendChild(listItem);
+            });
+        }
+
+        function playVideo(index) {
+            const file = playlist[index];
+            videoPlayer.src = URL.createObjectURL(file);
+            videoPlayer.load();
+            videoPlayer.play();
+            highlightCurrentVideo(index);
+        }
+
+        function highlightCurrentVideo(index) {
+            const listItems = playlistElement.querySelectorAll('li');
+            listItems.forEach((item, idx) => {
+                item.classList.toggle('active', idx === index);
+            });
+        }
+    </script>
+</body>
+</html>
